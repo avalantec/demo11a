@@ -886,7 +886,6 @@ class Invoice(models.Model):
 
     @api.multi
     def action_invoice_open(self,validate = True):
-        raise ValidationError("TEST1")
         if validate:
             log.info('--> 1570130084')
             for item in self.invoice_line_ids:
