@@ -59,8 +59,6 @@ class Invoice(models.Model):
             ],
     )
 
-    current_country_code = fields.Char(string="country code", compute='_get_current_company')
-
     fe_name_xml_sign = fields.Char(string="nombre xml firmado", )
     fe_xml_sign = fields.Binary(string="XML firmado", )
     fe_name_xml_hacienda = fields.Char(string="nombre xml hacienda", )
@@ -107,6 +105,16 @@ class Invoice(models.Model):
         ],
         default="FE",
     )
+
+    fe_current_country_company_code = fields.Char(string="Codigo pais de la compañia actual",compute="_get_country_code")
+
+    @api.multi
+    @api.depends('company_id')
+    def _get_country_code(self):
+        log.info('--> 1575319718')
+        for s in self:
+            s.fe_current_country_company_code = s.company_id.country_id.code
+
 
     @api.onchange("fe_in_invoice_type",)
     def _onchange_fe_in_invoice_type(self):
@@ -443,14 +451,6 @@ class Invoice(models.Model):
         nuevodom = transform(dom)
         return ET.tostring(nuevodom, pretty_print=True)
 
-    @api.multi
-    @api.depends()
-    def _get_current_company(self):
-        log.info('--> factelec-Invoice-_get_current_company')
-        for s in self:
-            #current_country_code = s.company_id.partner_id.country_id.code
-            current_country_code = s.company_id.country_id.code
-
 
     def _get_date(self, date):
        log.info('--> factelec/Invoice/_get_date')
@@ -713,7 +713,7 @@ class Invoice(models.Model):
         validation['Emisor-Ubicacion-Provincia']['Tamano'] = {'Min':1,'Max':1}
         validation['Emisor-Ubicacion-Provincia']['Tipo'] = 'String'
         validation['Emisor-Ubicacion-Provincia']['Patron'] = ''
-        validation['Emisor-Ubicacion-Provincia']['Mensaje'] = 'Falta configurar el codigo de factura electronica en la provincia '+emisor_str
+        validation['Emisor-Ubicacion-Provincia']['Mensaje'] = 'Configurar el codigo de factura electronica en la provincia '+emisor_str
 
         validation['Emisor-Ubicacion-Canton'] = {}
         validation['Emisor-Ubicacion-Canton']['CondicionCampo'] = {'01':'1','09':'1','08':'1','04':'1','03':'1','02':'1'}
@@ -847,7 +847,7 @@ class Invoice(models.Model):
         validation['CondicionVenta']['Tipo'] = 'String'
         validation['CondicionVenta']['Tamano'] = {'Min':2,'Max':2}
         validation['CondicionVenta']['Patron'] = ''
-        validation['CondicionVenta']['Mensaje'] = 'La condición de venta'
+        validation['CondicionVenta']['Mensaje'] = 'Tipo de pago o configuración en plazos de pago el tipo de pago'
 
         '''plazo credito'''
         validation['MedioPago'] = {}
