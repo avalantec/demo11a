@@ -1,4 +1,0 @@
-[submodule "bccr_odoo"]
-	path = bccr_odoo
-	url = https://github.com/stefanjaw/bccr_odoo.git
-	branch = odoov11
